@@ -29,25 +29,25 @@ Put also some *window-frame*, for example
 
 HTML attributes:
 
-* *scale*: `Number`
+- `scale: number`
 
 CSS variables:
 
-* *--infinite-paper-background-color*: `#fefefe`
+- `--infinite-paper-background-color: #fefefe`
 
 ### `<window-frame>`
 
 HTML attributes:
 
-* *top*: `Number`
-* *left*: `Number`
-* *width*: `Number`
-* *height*: `Number`
-* *src*: `String`
+- `top: number`
+- `left: number`
+- `width: number`
+- `height: number`
+- `src: string`
 
 CSS variables:
 
-* *--window-frame-box-shadow-color*: `rgba(0, 0, 0, 0.17)`
+- `--window-frame-box-shadow-color: rgba(0, 0, 0, 0.17)`
 
 ## License
 
