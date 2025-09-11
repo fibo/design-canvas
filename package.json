@@ -1,6 +1,6 @@
 {
   "name": "infinite-paper",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Web Components for design sketches",
   "exports": "infinite-paper.js",
   "scripts": {
@@ -14,9 +14,6 @@
     "web",
     "components",
     "infinite",
-    "paper",
-    "endless",
-    "paper",
     "design"
   ],
   "author": {
