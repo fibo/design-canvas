@@ -2,7 +2,7 @@
   "name": "infinite-paper",
   "version": "0.1.1",
   "description": "Web Components for design sketches",
-  "exports": "infinite-paper.js",
+  "exports": "./infinite-paper.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
