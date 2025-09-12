@@ -28,6 +28,8 @@ const infinitePaperTemplate = html`
 `;
 
 class InfinitePaper extends HTMLElement {
+	scalePrecision = 3;
+
 	constructor() {
 		super();
 		this.attachShadow({mode: 'open'}).appendChild(
@@ -35,38 +37,39 @@ class InfinitePaper extends HTMLElement {
 		);
 	}
 
-	static get scalePrecision() {
-		return 3;
-	}
-
 	static get observedAttributes() { return ['scale'] }
 
 	attributeChangedCallback(name, _oldValue, newValue) {
-		switch (name) {
-			case 'scale': {
-				this.windowFrames.forEach((element) => {
-					const wantedWidth = element.getAttribute('width');
-					const wantedHeight = element.getAttribute('height');
+		if (name === 'scale') {
+			this.windowFrames.forEach((element) => {
+				const wantedWidth = element.getAttribute('width');
+				const wantedHeight = element.getAttribute('height');
 
-					const width = Math.round(wantedWidth * newValue);
-					const height = Math.round(wantedHeight * newValue);
+				const width = Math.round(wantedWidth * newValue);
+				const height = Math.round(wantedHeight * newValue);
 
-					element.style.width = `${width}px`;
-					element.style.height = `${height}px`;
+				element.style.width = `${width}px`;
+				element.style.height = `${height}px`;
 
-					const iframe = element.shadowRoot.querySelector('iframe');
-					iframe.style.transform = `scale(${newValue})`;
-				});
-				break;
-			}
+				element.setAttribute('scale', newValue);
+			});
 		}
 	}
 
 	connectedCallback() {
 		// Disable scroll.
 		document.body.style.overflow = 'hidden';
+		// Listen to events.
 		for (const eventType of ['pointerdown', 'pointerleave', 'pointermove', 'pointerup', 'wheel'])
 			this.addEventListener(eventType, this);
+	}
+
+	disconnectedCallback() {
+		// Restore scroll.
+		document.body.style.overflow = '';
+		// Remove event listeners.
+		for (const eventType of ['pointerdown', 'pointerleave', 'pointermove', 'pointerup', 'wheel'])
+			this.removeEventListener(eventType, this);
 	}
 
 	handleEvent(event) {
@@ -110,7 +113,7 @@ class InfinitePaper extends HTMLElement {
 		}
 
 		if (event.type === 'wheel' && event.metaKey) {
-			this.scale = this.scale - event.deltaY * Math.pow(10, -InfinitePaper.scalePrecision);
+			this.scale = this.scale - event.deltaY * Math.pow(10, - this.scalePrecision);
 		}
 	}
 
@@ -124,7 +127,7 @@ class InfinitePaper extends HTMLElement {
 
 	set scale(value) {
 		if (value <= 0) return;
-		this.setAttribute('scale', Number(value.toFixed(InfinitePaper.scalePrecision)));
+		this.setAttribute('scale', Number(value.toFixed(this.scalePrecision)));
 	}
 }
 
@@ -137,9 +140,7 @@ customElements.define('infinite-paper', InfinitePaper);
 const windowFrameTemplate = html`
 <style>
 	:host {
-		box-shadow: 1px 1px 7px 1px var(
-			--window-frame-box-shadow-color, rgba(0, 0, 0, 0.17)
-		);
+		box-shadow: 1px 1px 7px 1px var(--window-frame-box-shadow-color, rgba(0, 0, 0, 0.17));
 	}
 	:host > iframe {
 		transform-origin: 0px 0px;
@@ -150,6 +151,8 @@ const windowFrameTemplate = html`
 `
 
 class WindowFrame extends HTMLElement {
+	scale = 1;
+
 	constructor() {
 		super();
 		this.attachShadow({mode: 'open'}).appendChild(
@@ -159,49 +162,33 @@ class WindowFrame extends HTMLElement {
 
 	static get observedAttributes() {
 		return [
+			'scale',
 			// position
-			'top',
-			'left',
+			'top', 'left',
 			// dimension
-			'width',
-			'height',
+			'width', 'height',
 			// iframe URL
 			'src',
 		];
 	}
 
 	attributeChangedCallback(name, _oldValue, newValue) {
-		switch (name) {
-			case 'top':
-			case 'left': {
-				const num = Math.round(newValue);
-
-				if (typeof num === 'number') {
-					this.style[name] = `${num}px`;
-				}
-
-				break;
-			}
-
-			case 'width':
-			case 'height': {
-				const {iframe, scale} = this;
-
-				const num = Math.round(newValue * scale);
-
-				if (typeof num === 'number' && num >= 0) {
-					this.style[name] = `${num}px`;
-					iframe.style.transform = `scale(${scale})`;
-					iframe[name] = newValue;
-				}
-
-				break;
-			}
-
-			case 'src': {
-				this.iframe.src = newValue;
-				break;
-			}
+		if (name === 'top' || name === 'left') {
+			const num = Math.round(newValue);
+			this.style[name] = `${num}px`;
+		}
+		if (name === 'width' || name === 'height') {
+			const num = Math.round(newValue * this.scale);
+			this.style[name] = `${num}px`;
+			this.iframe[name] = num;
+		}
+		if (name === 'scale') {
+			const num = Number(newValue);
+			this.scale = num
+			this.iframe.style.transform = `scale(${num})`;
+		}
+		if (name === 'src') {
+			this.iframe.src = newValue;
 		}
 	}
 
