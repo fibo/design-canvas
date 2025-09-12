@@ -33,7 +33,7 @@ HTML attributes:
 
 CSS variables:
 
-- `--infinite-paper-background-color: #fefefe`
+- `--infinite-paper-background-color: #f5f5f5`
 
 ### `<window-frame>`
 

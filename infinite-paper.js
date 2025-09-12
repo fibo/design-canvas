@@ -13,7 +13,7 @@ const html = (strings, ...expressions) => {
 const infinitePaperTemplate = html`
 	<style>
 		:host {
-			background-color: var(--infinite-paper-background-color, #fefefe);
+			background-color: var(--infinite-paper-background-color, #f5f5f5);
 			position: absolute;
 			left: 0;
 			top: 0;
