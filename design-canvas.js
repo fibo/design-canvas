@@ -7,13 +7,46 @@ const css = (selector, rules) => [
 	'}'
 ].join('');
 
-const windowFrames = new Set()
+//
+// Minimal pub/sub.
+//
+
+const subscribersByKey = new Map();
 
 const transformGroup = new Map()
 	.set('default', {
 		scale: 1,
 		origin: { x: 0, y: 0 },
-	})
+	});
+
+const state = new Map()
+	.set('transform', {
+		scale: 1,
+		origin: { x: 0, y: 0 },
+	});
+
+const publish = (key, callback) => {
+	state.set(key, callback(state.get(key)));
+	// Notify subscribers.
+	for (const callback of subscribersByKey.get(key) ?? [])
+		callback(state.get(key));
+}
+
+const subscribe = (key, callback) => {
+	// Add the subscriber.
+	const subscribers = subscribersByKey.get(key);
+	if (subscribers)
+		subscribers.add(callback);
+	else
+		subscribersByKey.set(key, new Set([callback]));
+	// Send snapshot of current state.
+	callback(state.get(key));
+	// Return unsubscribe function.
+	return () => {
+		const subscribers = subscribersByKey.get(key);
+		subscribers.delete(callback);
+	}
+}
 
 //
 // Design Canvas
@@ -59,7 +92,7 @@ class DesignCanvas extends HTMLElement {
 		});
 		// Remove event listeners.
 		for (const event of ['keydown', 'keyup'])
-			window.removeEventListener(event, this)
+			window.removeEventListener(event, this);
 		for (const event of ['pointerdown', 'pointerleave', 'pointermove', 'pointerup', 'wheel'])
 			this.removeEventListener(event, this);
 	}
@@ -67,14 +100,10 @@ class DesignCanvas extends HTMLElement {
 	handleEvent(event) {
 		if (event.type === 'keydown') {
 			if (event.code === 'Digit0' && event.ctrlKey) {
-				console.log('reset')
-				transformGroup.set('default', {
+				publish('transform', () => ({
 					scale: 1,
 					origin: { x: 0, y: 0 }
-				});
-				// Update window frames.
-				for (const item of windowFrames)
-					item.updateGeometry();
+				}));
 			}
 
 			if (event.code === 'MetaLeft' || event.code === 'MetaRight') {
@@ -107,25 +136,23 @@ class DesignCanvas extends HTMLElement {
 			const x = Math.round(event.clientX);
 			const y = Math.round(event.clientY);
 			if (this.#isDragging) {
-				const { origin: previousOrigin } = transformGroup.get('default')
-				transformGroup.get('default').origin = {
-					x: previousOrigin.x - this.#pointerCoordinates.x + x,
-					y: previousOrigin.y - this.#pointerCoordinates.y + y
-				}
+				publish('transform', ({ origin, scale }) => ({
+					origin: {
+						x: origin.x - this.#pointerCoordinates.x + x,
+						y: origin.y - this.#pointerCoordinates.y + y
+					},
+					scale,
+				}))
 				// Update pointer coordinates.
 				this.#pointerCoordinates = {x, y};
-				// Update window frames.
-				for (const item of windowFrames)
-					item.updateGeometry()
 			}
 		}
 
 		if (event.type === 'wheel' && event.metaKey) {
-			const { scale } = transformGroup.get('default')
-			transformGroup.get('default').scale = scale - event.deltaY * Math.pow(10, - this.#scalePrecision);
-			// Update window frames.
-			for (const item of windowFrames)
-				item.updateGeometry()
+			publish('transform', ({ origin, scale }) => ({
+				scale: scale - event.deltaY * Math.pow(10, - this.#scalePrecision),
+				origin,
+			}));
 		}
 	}
 
@@ -158,6 +185,7 @@ class WindowFrame extends HTMLElement {
 		];
 	}
 
+	#subscriptions = [];
 	#position = { x: 0, y: 0 };
 	#iframe = document.createElement('iframe');
 	#geometrySheet = new CSSStyleSheet();
@@ -170,11 +198,15 @@ class WindowFrame extends HTMLElement {
 	}
 
 	connectedCallback() {
-		windowFrames.add(this);
+		this.#subscriptions.push(
+			subscribe('transform', (transform) => {
+				this.#updateGeometry(transform);
+			}),
+		);
 	}
 
 	disconnectedCallback() {
-		windowFrames.delete(this);
+		this.#subscriptions.forEach(unsubscribe => unsubscribe());
 	}
 
 	attributeChangedCallback(name, _oldValue, newValue) {
@@ -182,7 +214,7 @@ class WindowFrame extends HTMLElement {
 			const [x, y] = newValue.split(',').map(str => Number(str));
 			if (isNaN(x) || isNaN(y)) return;
 			this.#position = { x, y };
-			this.updateGeometry()
+			this.#updateGeometry(state.get('transform'));
 		}
 
 		if (name === 'size') {
@@ -190,7 +222,7 @@ class WindowFrame extends HTMLElement {
 			if (isNaN(width) || isNaN(height)) return;
 			this.#iframe.width = width;
 			this.#iframe.height = height;
-			this.updateGeometry()
+			this.#updateGeometry(state.get('transform'));
 		}
 
 		if (name === 'src') {
@@ -198,9 +230,7 @@ class WindowFrame extends HTMLElement {
 		}
 	}
 
-	updateGeometry() {
-		console.log('update')
-		const { scale, origin } = transformGroup.get('default')
+	#updateGeometry({ scale, origin }) {
 		this.#geometrySheet.replace([
 			css(':host', {
 				left: `${Math.round(origin.x + this.#position.x * scale)}px`,
