@@ -1,19 +1,18 @@
 {
-  "name": "infinite-paper",
+  "name": "design-canvas",
   "version": "0.1.1",
-  "description": "Web Components for design sketches",
-  "exports": "./infinite-paper.js",
+  "description": "Web design components",
+  "exports": "./design-canvas.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fibo/infinite-paper.git"
+    "url": "git+https://github.com/fibo/design-canvas.git"
   },
   "keywords": [
     "web",
     "components",
-    "infinite",
     "design"
   ],
   "author": {
@@ -22,7 +21,7 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fibo/infinite-paper/issues"
+    "url": "https://github.com/fibo/design-canvas/issues"
   },
-  "homepage": "https://fibo.github.io/infinite-paper"
+  "homepage": "https://fibo.github.io/design-canvas"
 }

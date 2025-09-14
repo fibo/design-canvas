@@ -1,36 +1,24 @@
-# infinite-paper
+# Design Canvas
 
-> Web Components for design sketches
-
-[Usage](#usage) |
-[API](#api) |
-[License](#license)
+> Web design components
 
 ## Usage
 
-Add a single *infinite-paper*: it will fill the whole viewport.
+Add a single *design-canvas*: it will fill the whole viewport.
+
 Put also some *window-frame*, for example
 
 ```html
-<infinite-paper>
+<design-canvas>
   <window-frame
-    top="10"
-    left="10"
-    width="200"
-    height="400"
+    position="10,10"
+    size="200x400"
     src="https://www.example.com/page.html"
   ></window-frame>
-</infinite-paper>
+</design-canvas>
 ```
 
-## API
-
-### CSS variables
-
-```css
---design-canvas-background: #f6f6f6;
---design-canvas-shadow: 1px 1px 7px 1px rgba(0, 0, 0, 0.17);
-```
+See [demo](https://fibo.github.io/design-canvas).
 
 ## License
 

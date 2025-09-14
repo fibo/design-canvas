@@ -3,43 +3,32 @@
 <head>
   <meta charset="UTF-8">
 
-  <title>Infinite paper</title>
+  <title>Design Canvas</title>
   <meta name="author" content="Gianluca Casati">
-  <meta name="description" content="Web Components for design sketches">
+  <meta name="description" content="Web design components">
 
   <meta name="viewport" content="width=device-width">
 
-  <link rel="canonical" href="https://fibo.github.io/infinite-paper"/>
   <link rel="icon" href="data:image/x-icon;base64,AA">
 
   <style>
-    /* The following CSS variables are filled with default values. */
-    :root {
-      --design-canvas-background: #f6f6f6;
-			--design-canvas-shadow: 1px 1px 7px 1px rgba(0, 0, 0, 0.17);
-    }
+  /* The following CSS variables are filled with default values. */
+  :root {
+    --design-canvas-background: #f6f6f6;
+    --design-canvas-shadow: 1px 1px 7px 1px rgba(0, 0, 0, 0.17);
+  }
   </style>
 
 </head>
 <body>
-  <infinite-paper>
-    <window-frame
-      top="10"
-      left="10"
-      width="200"
-      height="400"
-      src="pages/welcome.html"
-    ></window-frame>
+  <design-canvas>
+    <window-frame position="20,20" size="700x250" src="pages/welcome.html"></window-frame>
 
-    <window-frame
-      top="10"
-      left="220"
-      width="200"
-      height="400"
-      src="pages/ui.html"
-    ></window-frame>
-  </infinite-paper>
+    <window-frame position="740,20" size="300x300" src="pages/controls.html"></window-frame>
 
-  <script src="infinite-paper.js"></script>
+    <window-frame position="150,300" size="500x170" src="pages/css-variables.html"></window-frame>
+  </design-canvas>
+
+  <script src="./design-canvas.js"></script>
 </body>
 </html>
