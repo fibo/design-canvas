@@ -14,13 +14,12 @@
 
   <style>
     /* The following CSS variables are filled with default values. */
-    infinite-paper {
-      --infinite-paper-background-color: #fefefe;
-    }
-    window-frame {
-      --window-frame-box-shadow-color: rgba(0, 0, 0, 0.17);
+    :root {
+      --design-canvas-background: #f6f6f6;
+			--design-canvas-shadow: 1px 1px 7px 1px rgba(0, 0, 0, 0.17);
     }
   </style>
+
 </head>
 <body>
   <infinite-paper>
@@ -30,6 +29,14 @@
       width="200"
       height="400"
       src="pages/welcome.html"
+    ></window-frame>
+
+    <window-frame
+      top="10"
+      left="220"
+      width="200"
+      height="400"
+      src="pages/ui.html"
     ></window-frame>
   </infinite-paper>
 

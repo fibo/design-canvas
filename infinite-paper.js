@@ -1,41 +1,23 @@
-const html = (strings, ...expressions) => {
-	let template = document.createElement('template');
-	template.innerHTML = strings.reduce(
-		(result, string, index) => result + string + (expressions[index] ?? ''), ''
-	);
-	return template
-}
+const css = (selector, rules) => [
+	selector, '{',
+		Object.entries(rules).map(
+			([key, value]) => [key, value].join(':')
+		).join(';'),
+	'}'
+].join('');
 
-/**
- * InfinitePaper
- */
-
-const infinitePaperTemplate = html`
-	<style>
-		:host {
-			background-color: var(--infinite-paper-background-color, #f5f5f5);
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 100vw;
-			height: 100vh;
-		}
-		::slotted(window-frame) {
-			position: absolute;
-		}
-	</style>
-	<slot></slot>
-`;
+const designCanvasSheet = new CSSStyleSheet();
+designCanvasSheet.insertRule(css('infinite-paper', {
+	'background-color': 'var(--design-canvas-background, #f6f6f6)',
+	'position': 'absolute',
+	'left': '0',
+	'top': '0',
+	'width': '100vw',
+	'height': '100vh',
+}));
 
 class InfinitePaper extends HTMLElement {
 	scalePrecision = 3;
-
-	constructor() {
-		super();
-		this.attachShadow({mode: 'open'}).appendChild(
-			infinitePaperTemplate.content.cloneNode(true)
-		);
-	}
 
 	static get observedAttributes() { return ['scale'] }
 
@@ -59,6 +41,8 @@ class InfinitePaper extends HTMLElement {
 	connectedCallback() {
 		// Disable scroll.
 		document.body.style.overflow = 'hidden';
+		// Add style.
+		document.adoptedStyleSheets.push(designCanvasSheet);
 		// Listen to events.
 		for (const eventType of ['pointerdown', 'pointerleave', 'pointermove', 'pointerup', 'wheel'])
 			this.addEventListener(eventType, this);
@@ -67,6 +51,8 @@ class InfinitePaper extends HTMLElement {
 	disconnectedCallback() {
 		// Restore scroll.
 		document.body.style.overflow = '';
+		// Remove style.
+		document.adoptedStyleSheets = document.adoptedStyleSheets.filter((sheet) => sheet !== designCanvasSheet);
 		// Remove event listeners.
 		for (const eventType of ['pointerdown', 'pointerleave', 'pointermove', 'pointerup', 'wheel'])
 			this.removeEventListener(eventType, this);
@@ -118,7 +104,7 @@ class InfinitePaper extends HTMLElement {
 	}
 
 	get windowFrames() {
-		return this.querySelectorAll(':scope > window-frame');
+		return document.querySelectorAll('window-frame');
 	}
 
 	get scale() {
@@ -137,38 +123,33 @@ customElements.define('infinite-paper', InfinitePaper);
  * WindowFrame
  */
 
-const windowFrameTemplate = html`
-<style>
-	:host {
-		box-shadow: 1px 1px 7px 1px var(--window-frame-box-shadow-color, rgba(0, 0, 0, 0.17));
-	}
-	:host > iframe {
-		transform-origin: 0px 0px;
-	}
-</style>
-
-<iframe frameborder='0'></iframe>
-`
+const windowFrameSheet = new CSSStyleSheet();
+windowFrameSheet.insertRule(css(':host', {
+	'position': 'absolute',
+	'box-shadow': 'var(--design-canvas-shadow, 1px 1px 7px 1px rgba(0, 0, 0, 0.17))'
+}));
+windowFrameSheet.insertRule(css(':host > iframe', {
+	'transform-origin': '0px 0px',
+	'border': 'none',
+}));
 
 class WindowFrame extends HTMLElement {
 	scale = 1;
+	iframe = document.createElement('iframe');
 
 	constructor() {
 		super();
-		this.attachShadow({mode: 'open'}).appendChild(
-			windowFrameTemplate.content.cloneNode(true)
-		);
+		this.attachShadow({mode: 'open'});
+		this.shadowRoot.adoptedStyleSheets.push(windowFrameSheet);
+		this.shadowRoot.appendChild(this.iframe);
 	}
 
 	static get observedAttributes() {
 		return [
 			'scale',
-			// position
-			'top', 'left',
-			// dimension
-			'width', 'height',
-			// iframe URL
-			'src',
+			'top', 'left', // position
+			'width', 'height', // dimension
+			'src', // iframe URL
 		];
 	}
 
@@ -200,10 +181,6 @@ class WindowFrame extends HTMLElement {
 				return parentNode;
 			}
 		}
-	}
-
-	get iframe() {
-		return this.shadowRoot.querySelector('iframe');
 	}
 
 	get scale() {

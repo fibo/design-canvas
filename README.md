@@ -4,11 +4,11 @@
 
 [Usage](#usage) |
 [API](#api) |
-[License](#license) |
+[License](#license)
 
 ## Usage
 
-Add a single *infinite-paper*: it will disable scroll and fill the whole viewport.
+Add a single *infinite-paper*: it will fill the whole viewport.
 Put also some *window-frame*, for example
 
 ```html
@@ -25,29 +25,12 @@ Put also some *window-frame*, for example
 
 ## API
 
-### `<infinite-paper>`
+### CSS variables
 
-HTML attributes:
-
-- `scale: number`
-
-CSS variables:
-
-- `--infinite-paper-background-color: #f5f5f5`
-
-### `<window-frame>`
-
-HTML attributes:
-
-- `top: number`
-- `left: number`
-- `width: number`
-- `height: number`
-- `src: string`
-
-CSS variables:
-
-- `--window-frame-box-shadow-color: rgba(0, 0, 0, 0.17)`
+```css
+--design-canvas-background: #f6f6f6;
+--design-canvas-shadow: 1px 1px 7px 1px rgba(0, 0, 0, 0.17);
+```
 
 ## License
 
