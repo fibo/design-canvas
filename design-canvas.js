@@ -78,7 +78,7 @@ class DesignCanvas extends HTMLElement {
 		for (const event of ['keydown', 'keyup'])
 			window.addEventListener(event, this)
 		for (const event of ['pointerdown', 'pointerleave', 'pointermove', 'pointerup', 'wheel'])
-			this.addEventListener(event, this);
+			this.addEventListener(event, this, { passive: true });
 	}
 
 	disconnectedCallback() {

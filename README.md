@@ -13,7 +13,7 @@ Put also some *window-frame*, for example
   <window-frame
     position="10,10"
     size="200x400"
-    src="https://www.example.com/page.html"
+    src="path/to/page.html"
   ></window-frame>
 </design-canvas>
 ```
